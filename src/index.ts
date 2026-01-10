@@ -1,6 +1,9 @@
 import express, { type Application } from "express";
 import helmet from "helmet";
 import cors from "cors";
+
+// Workaround para helmet con ES Modules
+const helmetMiddleware = (helmet as unknown as { default: typeof helmet }).default ?? helmet;
 import { env } from "./infrastructure/config/env.js";
 import { logger } from "./infrastructure/config/logger.js";
 import { rateLimiter } from "./infrastructure/http/middlewares/rateLimiter.js";
@@ -25,7 +28,7 @@ function createApp(): Application {
   // ============================================
 
   // Helmet: Headers de seguridad HTTP
-  app.use(helmet());
+  app.use(helmetMiddleware());
 
   // CORS: Permitir solicitudes cross-origin
   app.use(
