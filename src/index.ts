@@ -1,6 +1,10 @@
 import express, { type Application } from "express";
-import * as helmet from "helmet";
 import cors from "cors";
+import { createRequire } from "module";
+import { pathToFileURL } from "url";
+
+const require = createRequire(import.meta.url);
+const helmet = require("helmet");
 
 import { env } from "./infrastructure/config/env.js";
 import { logger } from "./infrastructure/config/logger.js";
@@ -141,8 +145,14 @@ process.on("unhandledRejection", (reason) => {
   process.exit(1);
 });
 
-// Iniciar servidor
-startServer().catch((error) => {
-  logger.error("Error al iniciar el servidor:", error);
-  process.exit(1);
-});
+// Iniciar servidor solo si es el módulo principal (local o standalone)
+// En Vercel, este archivo se importa, por lo que este bloque no se ejecuta.
+if (import.meta.url === pathToFileURL(process.argv[1]).href) {
+  startServer().catch((error) => {
+    logger.error("Error al iniciar el servidor:", error);
+    process.exit(1);
+  });
+}
+
+// Exportar la aplicación para Vercel Serverless Functions
+export default createApp();
