@@ -24,7 +24,9 @@ const transports: winston.transport[] = [
   }),
 ];
 
-// En producción, agregar archivo de logs
+// En producción, solo usar Console en entornos serverless (el sistema de archivos es de solo lectura)
+// Si necesitas persistencia, considera un servicio externo como Datadog o usar solo Console transport
+/*
 if (env.NODE_ENV === "production") {
   transports.push(
     new winston.transports.File({
@@ -45,6 +47,7 @@ if (env.NODE_ENV === "production") {
     })
   );
 }
+*/
 
 /**
  * Logger principal de la aplicación.
