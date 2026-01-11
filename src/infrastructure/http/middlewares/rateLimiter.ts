@@ -1,4 +1,5 @@
-import rateLimit from "express-rate-limit";
+import { rateLimit, type Options } from "express-rate-limit";
+import type { Request, Response, NextFunction } from "express";
 import { logger } from "../../config/logger.js";
 
 /**
@@ -22,17 +23,17 @@ export const rateLimiter = rateLimit({
   message: {
     success: false,
     error: "Demasiadas solicitudes. Por favor, intente de nuevo más tarde.",
-  },
+  } as any,
 
   // Handler cuando se excede el límite
-  handler: (req, res, _next, options) => {
+  handler: (req: Request, res: Response, _next: NextFunction, options: Options) => {
     logger.warn(`Rate limit excedido para IP: ${req.ip}`);
     res.status(options.statusCode).json(options.message);
   },
 
   // Usar IP real detrás de proxies (Railway, etc.)
   // Nota: Configurar 'trust proxy' en Express
-  keyGenerator: (req) => {
+  keyGenerator: (req: Request) => {
     return req.ip ?? "unknown";
   },
 });
@@ -49,8 +50,8 @@ export const strictRateLimiter = rateLimit({
   message: {
     success: false,
     error: "Límite de envíos excedido. Por favor, espere un momento.",
-  },
-  handler: (req, res, _next, options) => {
+  } as any,
+  handler: (req: Request, res: Response, _next: NextFunction, options: Options) => {
     logger.warn(`Strict rate limit excedido para IP: ${req.ip}`);
     res.status(options.statusCode).json(options.message);
   },
